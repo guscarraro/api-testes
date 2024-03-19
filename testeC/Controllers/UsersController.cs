@@ -1,52 +1,76 @@
 using Microsoft.AspNetCore.Mvc;
-using TestC.Models; // Corrigido para corresponder ao namespace do modelo User
-using System;
-using System.Collections.Generic;
+using TestC.Models;
+using TestC.Data; // Adicione este using para acessar ApplicationDbContext
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
-namespace TestC.Controllers // Corrigido para corresponder ao namespace correto
+namespace TestC.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private static List<User> users = new List<User>
+        private readonly ApplicationDbContext _context;
+        private readonly PasswordHasher<User> _passwordHasher = new PasswordHasher<User>();
+
+        public UsersController(ApplicationDbContext context)
         {
-            new User { Id = 1, Nome = "Joao", Email = "joao@mail.com", DataCadastro = new DateTime(2020,1,1)}
-        }; // Corrigido, adicionado ponto e vírgula
+            _context = context;
+        }
 
         // GET: api/users
         [HttpGet]
         public ActionResult<IEnumerable<User>> Get()
         {
-            return users;
+            return _context.Users.ToList();
         }
 
-        // POST: api/Users
-        [HttpPost]
-        public ActionResult<User> Post([FromBody] User user)
+        // POST: api/Users/register
+        [HttpPost("register")]
+        public async Task<ActionResult<User>> Register([FromBody] User user)
         {
-            if (users.Any(u => u.Email == user.Email)) // Corrigido, 'u' em vez de 'uint'
+            if (_context.Users.Any(u => u.Email == user.Email))
             {
-                return BadRequest("Usuario com este e-mail ja existe."); // Corrigido, adicionado ponto e vírgula
+                return BadRequest("Usuário com este e-mail já existe.");
             }
 
-            user.Id = users.Any() ? users.Max(u => u.Id) + 1 : 1;
-            users.Add(user);
+            user.Password = _passwordHasher.HashPassword(user, user.Password);
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+        }
+
+        // POST: api/Users/login
+        [HttpPost("login")]
+        public ActionResult Login([FromBody] User loginRequest)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == loginRequest.Email);
+
+            if (user == null || _passwordHasher.VerifyHashedPassword(user, user.Password, loginRequest.Password) != PasswordVerificationResult.Success)
+            {
+                return Unauthorized("Credenciais inválidas.");
+            }
+
+            // Aqui, insira a lógica para gerar e retornar um token JWT
+
+            return Ok(new { Message = "Login bem-sucedido.", Token = "token_aqui" });
         }
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var user = users.FirstOrDefault(u => u.Id == id);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            users.Remove(user);
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
     }

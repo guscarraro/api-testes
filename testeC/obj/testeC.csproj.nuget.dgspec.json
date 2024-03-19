@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/gustavocarraro/Documents/api-testes/api-testes/testeC/testeC.csproj": {}
+    "/Users/gustavocarraro/Documents/api-testes/api-testes/api-testes/testeC/testeC.csproj": {}
   },
   "projects": {
-    "/Users/gustavocarraro/Documents/api-testes/api-testes/testeC/testeC.csproj": {
+    "/Users/gustavocarraro/Documents/api-testes/api-testes/api-testes/testeC/testeC.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/gustavocarraro/Documents/api-testes/api-testes/testeC/testeC.csproj",
+        "projectUniqueName": "/Users/gustavocarraro/Documents/api-testes/api-testes/api-testes/testeC/testeC.csproj",
         "projectName": "testeC",
-        "projectPath": "/Users/gustavocarraro/Documents/api-testes/api-testes/testeC/testeC.csproj",
+        "projectPath": "/Users/gustavocarraro/Documents/api-testes/api-testes/api-testes/testeC/testeC.csproj",
         "packagesPath": "/Users/gustavocarraro/.nuget/packages/",
-        "outputPath": "/Users/gustavocarraro/Documents/api-testes/api-testes/testeC/obj/",
+        "outputPath": "/Users/gustavocarraro/Documents/api-testes/api-testes/api-testes/testeC/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/gustavocarraro/.nuget/NuGet/NuGet.Config"
@@ -44,6 +44,10 @@
           "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.AspNetCore.OpenApi": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[8.0.2, )"
             },

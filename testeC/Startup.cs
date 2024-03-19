@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using TestC.Data; // Certifique-se de que este namespace está correto
 
 namespace TestC
 {
@@ -17,28 +19,32 @@ namespace TestC
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            // Configure o CORS aqui se necessário
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
-                {
-                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                });
+                options.AddPolicy(name: "MyAllowSpecificOrigins",
+                                builder =>
+                                {
+                                    builder.WithOrigins("http://localhost:5173")
+                                            .AllowAnyHeader()
+                                            .AllowAnyMethod();
+                                });
             });
+
+            // Adiciona o DbContext com a string de conexão do PostgreSQL
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            // Outras configurações
+
+            // Habilita o uso do CORS
+            app.UseCors("MyAllowSpecificOrigins");
 
             app.UseRouting();
-
-            // Use o CORS aqui
-            app.UseCors("AllowAll");
 
             app.UseAuthorization();
 
